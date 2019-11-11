@@ -1,0 +1,25 @@
+---
+- hosts: all
+  become: yes
+  become_user: root
+  roles:
+    - k8s-setup
+  tags:
+    - k8s-setup
+
+
+- hosts: k8s-manager-node
+  roles:
+    - k8s-setup-manager
+
+- hosts: k8s-worker-node
+  roles:
+    - k8s-setup-worker
+  tags:
+    - k8s-setup-worker
+  
+
+
+  
+  
+  

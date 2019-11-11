@@ -1,0 +1,14 @@
+---
+
+- name: copy token on worker-nodes
+  copy:
+    src: token.sh
+    dest: /root/
+
+- name: execute token on worker-nodes
+  shell: bash /root/token.sh
+  register: k8s_join
+
+- name: print msg k8s_join
+  debug:
+    msg: '{{ k8s_join.stdout }}'

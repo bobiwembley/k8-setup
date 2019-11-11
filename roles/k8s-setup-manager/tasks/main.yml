@@ -1,0 +1,40 @@
+---
+- name: initiate kube on manager node
+  shell: kubeadm init 
+  register: kubeadm_result
+
+- name: print msg
+  debug:
+    msg: '{{ kubeadm_result.stdout }}'
+
+- name: copy token in file
+  copy:
+    content: '{{ kubeadm_result.stdout }}'
+    dest: /tmp/file
+
+- name: get exactly token to join token
+  shell: tail -2 /tmp/file > /tmp/token.sh
+
+- name: get token.sh on localserver
+  fetch:
+    src: /tmp/token.sh
+    dest: roles/k8s-setup-worker/files/token.sh
+    flat: yes
+    
+- name: create folder for kube (experimental used it's for root)
+  file:
+    path: /root/.kube
+    state: directory
+
+- name: copy kubeconfig in /root/.kube
+  shell: cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+
+- name: change owner 
+  shell: chown $(id -u):$(id -g) $HOME/.kube/config
+
+- name: install flannel network components (1/2)
+  shell:  kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+- name: install flannel network components (2/2)
+  shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/k8s-manifests/kube-flannel-rbac.yml
+

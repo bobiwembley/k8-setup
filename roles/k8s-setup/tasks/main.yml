@@ -1,0 +1,40 @@
+---
+- name: update all packages
+  apt:
+    update_cache: yes
+
+- name: install common packages for setting k8s
+  apt:
+   pkg:
+   - curl
+   - docker.io
+
+- name: enable docker on all nodes of k8s-cluster
+  shell: systemctl enable docker
+
+- name: add K8s module on all nodes
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+
+- name: add repository k8s 
+  apt_repository:
+    repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+    state: present
+
+- name: install k8s on nodes
+  apt:
+   pkg:
+   - kubeadm
+   - kubelet
+   - kubectl
+   - kubernetes-cni
+
+- name: deactivate swap 
+  shell: swapoff -a 
+
+- name: Commenting Swap entries in /etc/fstab
+  replace:    
+    path: /etc/fstab
+    regexp: '(.*swap*)'
+    replace: '#\1'
+
