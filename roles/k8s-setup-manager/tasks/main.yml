@@ -1,6 +1,6 @@
 ---
 - name: initiate kube on manager node
-  shell: kubeadm init 
+  shell: kubeadm init --pod-network-cidr=10.244.0.0/16 
   register: kubeadm_result
 
 - name: print msg
@@ -20,21 +20,40 @@
     src: /tmp/token.sh
     dest: roles/k8s-setup-worker/files/token.sh
     flat: yes
-    
-- name: create folder for kube (experimental used it's for root)
+
+- name: create kube admin 
+  user:
+    name: kmanager
+    shell: /bin/bash
+    group: docker
+
+- name: create kube folder
   file:
-    path: /root/.kube
+    path: /home/kmanager/.kube/
     state: directory
 
-- name: copy kubeconfig in /root/.kube
-  shell: cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+- name: copy kubeconfig in home directory kmanager
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: /home/kmanager/.kube/config
+    remote_src: yes
 
-- name: change owner 
-  shell: chown $(id -u):$(id -g) $HOME/.kube/config
+- name:  owner kube config 
+  file: 
+    path: /home/kmanager/.kube/config
+    owner: kmanager
 
 - name: install flannel network components (1/2)
   shell:  kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+  become: yes
+  become_method: su
+  become_user: kmanager
 
 - name: install flannel network components (2/2)
   shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/k8s-manifests/kube-flannel-rbac.yml
+  become: yes
+  become_method: su
+  become_user: kmanager
+
+
 

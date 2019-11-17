@@ -11,6 +11,8 @@
 - hosts: k8s-manager-node
   roles:
     - k8s-setup-manager
+  tags:
+    - k8s-setup-manager
 
 - hosts: k8s-worker-node
   roles:
