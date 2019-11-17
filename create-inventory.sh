@@ -1,6 +1,16 @@
 #!/bin/bash
 
-touch inventory/hosts
+if [ ! -d inventory ]
+  then
+    echo "inventory folder not present"
+    echo "create it"
+    mkdir inventory && touch inventory/hosts 
+
+  else
+    rm inventory/*
+    touch inventory/hosts 
+fi
+
 
 echo [k8s-manager-node] > inventory/hosts
 echo [k8s-worker-node] >> inventory/hosts
