@@ -48,5 +48,3 @@ to setup with tag:
 ````
  ansible-playbook --user=root --tag "k8s-setup" -i  hosts/hosts k8s-setup.yml
  ````
-
-In the feature I will added a non-root user to setup cluster
