@@ -27,9 +27,16 @@
     shell: /bin/bash
     group: docker
 
+- name: create group kmamager
+  group:
+    name: kmanager
+    state: present
+
 - name: create kube folder
   file:
     path: /home/kmanager/.kube/
+    owner: kmanager
+    group: kmanager
     state: directory
 
 - name: copy kubeconfig in home directory kmanager
@@ -42,6 +49,7 @@
   file: 
     path: /home/kmanager/.kube/config
     owner: kmanager
+    group: kmanager
 
 - name: install flannel network components (1/2)
   shell:  kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
